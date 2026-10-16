@@ -1,6 +1,10 @@
+
 package ie.atu.cicd1.catalog.cicd1catalogservice.service;
 
+import ie.atu.cicd1.catalog.cicd1catalogservice.dto.CreateProductRequest;
+import ie.atu.cicd1.catalog.cicd1catalogservice.model.Category;
 import ie.atu.cicd1.catalog.cicd1catalogservice.model.Product;
+import ie.atu.cicd1.catalog.cicd1catalogservice.repository.CategoryRepository;
 import ie.atu.cicd1.catalog.cicd1catalogservice.repository.ProductRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -13,18 +17,17 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository repository;
+    private final CategoryRepository categoryRepository;
 
-    public ProductService(ProductRepository repository) {
+    public ProductService(
+            ProductRepository repository,
+            CategoryRepository categoryRepository) {
         this.repository = repository;
+        this.categoryRepository = categoryRepository;
     }
 
     public List<Product> getAll() {
         return repository.findAll();
-    }
-
-    public Product create(Product product) {
-        product.setId(null);
-        return repository.save(product);
     }
 
     public Product getById(Long id) {
@@ -35,7 +38,22 @@ public class ProductService {
                 ));
     }
 
-    public List<Product> getProductsByMinimumPrice(BigDecimal minPrice) {
-        return repository.findProductsWithMinimumPrice(minPrice);
+    public List<Product> getProductsByMinimumPrice(BigDecimal price) {
+        return repository.findProductsWithMinimumPrice(price);
+    }
+
+    public Product create(CreateProductRequest request) {
+        Category category = categoryRepository.findById(request.categoryId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Category not found"
+                ));
+
+        Product product = new Product();
+        product.setName(request.name());
+        product.setPrice(request.price());
+        product.setCategory(category);
+
+        return repository.save(product);
     }
 }
