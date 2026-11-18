@@ -30,6 +30,7 @@ Returns products belonging to the specified category.
 
 Example JSON request:
 
+
 ```json
 {
   "name": "Keyboard",
@@ -37,6 +38,7 @@ Example JSON request:
   "categoryId": 2
 }
 ```
+
 
 The `categoryId` must refer to an existing category in the H2 database. An invalid or missing `categoryId` returns HTTP 400.
 
